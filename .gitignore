@@ -6,3 +6,8 @@ build/
 *.ilk
 .cache/
 compile_commands.json
+
+build_err.txt
+build_out.txt
+test_easyatom.exe
+

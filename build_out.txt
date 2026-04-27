@@ -1,7 +1,0 @@
-src/c_api.cpp:70:14: warning: 'fetch_state' has C-linkage specified, but returns user-defined type 'const State &' which is incompatible with C [-Wreturn-type-c-linkage]
-   70 | const State& fetch_state(QKernel& k, const char* name, bool autoingest) {
-      |              ^
-src/c_api.cpp:80:44: warning: 'build_query' has C-linkage specified, but returns incomplete type 'std::pair<State, std::vector<std::string>>' (aka 'pair<easyatom::hilbert::State, vector<basic_string<char>>>') which could be incompatible with C [-Wreturn-type-c-linkage]
-   80 | std::pair<State, std::vector<std::string>> build_query(
-      |                                            ^
-2 warnings generated.
