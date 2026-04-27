@@ -37,7 +37,7 @@ easyatom-engine/
 | 0 | Multivectores de Clifford `Cl(p,q)` + producto geométrico | ✅ |
 | 1 | Espacio de Hilbert simulado `H_D` + estados normalizados | ✅ |
 | 2 | Operadores fundamentales geométricos (bind/bundle/permute/unbind) | ✅ |
-| 3 | Métrica: Fisher-Rao + α-conexiones de Amari | 🔜 |
+| 3 | Métrica: Fisher-Rao + α-conexiones de Amari | ✅ |
 | 4 | Topología: homología persistente (Ripser/GUDHI) | 🔜 |
 | 5 | Dinámica: operador de Koopman (lift) | 🔜 |
 | 6 | Compilación de leyes (symbolic regression) | 🔜 |
