@@ -21,7 +21,8 @@ $sources = @(
     'tests/test_infogeo.cpp',
     'tests/test_topology.cpp',
     'tests/test_dynamics.cpp',
-    'tests/test_laws.cpp'
+    'tests/test_laws.cpp',
+    'tests/test_qkernel.cpp'
 )
 $out = 'test_easyatom.exe'
 
