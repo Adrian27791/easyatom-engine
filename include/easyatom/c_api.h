@@ -109,6 +109,29 @@ int eatom_kernel_query_pairs_probs(
     double* out_probs);
 
 // ---------------------------------------------------------------------------
+// Ladrillo 15: unbind standalone (operador inverso del bind expuesto puro).
+// ---------------------------------------------------------------------------
+//
+// Calcula  guess = unbind(bind(key, partner), key)  y devuelve por argmax
+// sobre `candidates` el índice ganador en `*out_winner_index`.
+//
+// Por la propiedad de inverso EXACTO del bind Hadamard-conjugado:
+//   unbind(bind(a, b), a) == b
+// el ganador debe ser exactamente `partner` cuando éste figura entre los
+// candidatos. Esto expone la simetría algebraica bind ⊗ / unbind ⊘ como
+// un único primitivo verificable desde cualquier FFI, complementando
+// `query_pairs_argmax` (que opera sobre bundle de múltiples pares).
+//
+// Si autoingest != 0, los nombres ausentes se registran on-the-fly.
+int eatom_kernel_unbind_argmax(
+    eatom_kernel_t* k,
+    const char* key,
+    const char* partner,
+    const char* const* candidates,   size_t n_candidates,
+    int autoingest,
+    size_t* out_winner_index);
+
+// ---------------------------------------------------------------------------
 // Ladrillos 10 + 11: decide + decoder semántico.
 // ---------------------------------------------------------------------------
 

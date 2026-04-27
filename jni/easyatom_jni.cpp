@@ -154,6 +154,32 @@ Java_com_easyhelpcare_easyatom_EasyAtomNative_nativeQueryProbs(
 }
 
 // ---------------------------------------------------------------------------
+// nativeUnbindArgmax: operador unbind standalone (Ladrillo 15).
+//
+// Devuelve el índice ganador (>= 0) o el código de error eatom_status (< 0).
+// ---------------------------------------------------------------------------
+
+JNIEXPORT jint JNICALL
+Java_com_easyhelpcare_easyatom_EasyAtomNative_nativeUnbindArgmax(
+    JNIEnv* env, jclass, jlong handle,
+    jstring key, jstring partner,
+    jobjectArray candidates, jboolean autoingest) {
+    if (handle == 0) return EATOM_ERR_NULL;
+    JStringUTF k(env, key), p(env, partner);
+    JStringArray c(env, candidates);
+    if (c.size() == 0) return EATOM_ERR_INVALID_ARG;
+    size_t winner = 0;
+    int rc = eatom_kernel_unbind_argmax(
+        reinterpret_cast<eatom_kernel_t*>(handle),
+        k.c_str(), p.c_str(),
+        c.data(), c.size(),
+        autoingest ? 1 : 0,
+        &winner);
+    if (rc != EATOM_OK) return rc;
+    return static_cast<jint>(winner);
+}
+
+// ---------------------------------------------------------------------------
 // nativeDecide: decisor + decoder semántico (Ladrillos 10 + 11).
 //
 // Devuelve un Object[] con:

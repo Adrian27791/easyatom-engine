@@ -193,6 +193,55 @@ int eatom_kernel_query_pairs_probs(
     }
 }
 
+// ---------------------------------------------------------------------------
+// Ladrillo 15 — unbind standalone.
+//
+// Expone el operador inverso del bind como primitivo:
+//   guess = unbind(bind(key, partner), key)  ≈ partner   (exacto en HRR)
+// y devuelve argmax sobre candidates. Pasa por la fachada QKernel para
+// reusar compose() = bind y query() = unbind, sin duplicar lógica.
+// ---------------------------------------------------------------------------
+int eatom_kernel_unbind_argmax(
+    eatom_kernel_t* k,
+    const char* key,
+    const char* partner,
+    const char* const* candidates, size_t n_candidates,
+    int autoingest,
+    size_t* out_winner_index)
+{
+    if (!k || !out_winner_index) return EATOM_ERR_NULL;
+    if (!key || !partner) return EATOM_ERR_NULL;
+    if (n_candidates == 0) return EATOM_ERR_INVALID_ARG;
+    if (!candidates) return EATOM_ERR_NULL;
+    try {
+        const bool ai = (autoingest != 0);
+        const State& kr = fetch_state(k->impl, key, ai);
+        const State& pr = fetch_state(k->impl, partner, ai);
+        State composite = k->impl.compose(kr, pr);   // bind(key, partner)
+        State guess     = k->impl.query(composite, kr); // unbind(composite, key)
+
+        std::vector<std::string> cand_names;
+        cand_names.reserve(n_candidates);
+        for (size_t i = 0; i < n_candidates; ++i) {
+            if (!candidates[i]) return EATOM_ERR_INVALID_ARG;
+            (void)fetch_state(k->impl, candidates[i], ai);
+            cand_names.emplace_back(candidates[i]);
+        }
+        std::string winner = k->impl.argmax_collapse(guess, cand_names);
+        for (size_t i = 0; i < n_candidates; ++i) {
+            if (cand_names[i] == winner) {
+                *out_winner_index = i;
+                return EATOM_OK;
+            }
+        }
+        return EATOM_ERR_INTERNAL;
+    } catch (const std::invalid_argument&) {
+        return EATOM_ERR_INVALID_ARG;
+    } catch (...) {
+        return EATOM_ERR_INTERNAL;
+    }
+}
+
 namespace {
 
 inline int decision_kind_to_c(DecisionKind k) noexcept {

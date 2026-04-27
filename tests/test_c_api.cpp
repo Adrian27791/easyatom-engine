@@ -195,3 +195,55 @@ EATEST_CASE(c_api_decide_pairs_policy_strict_puede_abstener) {
     EATEST_REQUIRE(kind != EATOM_DECISION_ACCEPT);
     eatom_kernel_destroy(k);
 }
+
+// ---------------------------------------------------------------------------
+// Ladrillo 15 — unbind standalone.
+// ---------------------------------------------------------------------------
+
+EATEST_CASE(c_api_unbind_argmax_recupera_partner_exacto) {
+    auto* k = eatom_kernel_create(1024, 31337);
+    // Inverso EXACTO del bind Hadamard-conjugado:
+    //   unbind(bind(insulina, glucosa), insulina) == glucosa
+    // El argmax sobre los candidatos debe colapsar a "glucosa" (idx 1).
+    const char* cands[] = {"agua", "glucosa", "grasa", "sal"};
+    size_t winner = 999;
+    int rc = eatom_kernel_unbind_argmax(
+        k, "insulina", "glucosa", cands, 4, /*autoingest*/ 1, &winner);
+    EATEST_REQUIRE(rc == EATOM_OK);
+    EATEST_REQUIRE(winner == 1);
+
+    // Cambiar el partner cambia el ganador (simetría del operador).
+    rc = eatom_kernel_unbind_argmax(
+        k, "insulina", "agua", cands, 4, 1, &winner);
+    EATEST_REQUIRE(rc == EATOM_OK);
+    EATEST_REQUIRE(winner == 0);
+    eatom_kernel_destroy(k);
+}
+
+EATEST_CASE(c_api_unbind_argmax_handle_null_devuelve_error) {
+    const char* cands[] = {"a"};
+    size_t winner = 0;
+    int rc = eatom_kernel_unbind_argmax(
+        nullptr, "k", "p", cands, 1, 1, &winner);
+    EATEST_REQUIRE(rc == EATOM_ERR_NULL);
+}
+
+EATEST_CASE(c_api_unbind_argmax_n_candidates_cero_lanza) {
+    auto* k = eatom_kernel_create(64, 7);
+    size_t winner = 0;
+    int rc = eatom_kernel_unbind_argmax(
+        k, "k", "p", nullptr, 0, 1, &winner);
+    EATEST_REQUIRE(rc == EATOM_ERR_INVALID_ARG);
+    eatom_kernel_destroy(k);
+}
+
+EATEST_CASE(c_api_unbind_argmax_autoingest_off_lanza_si_falta_nombre) {
+    auto* k = eatom_kernel_create(64, 9);
+    const char* cands[] = {"x"};
+    size_t winner = 0;
+    int rc = eatom_kernel_unbind_argmax(
+        k, "k_no_ingerido", "p_no_ingerido", cands, 1,
+        /*autoingest*/ 0, &winner);
+    EATEST_REQUIRE(rc == EATOM_ERR_INVALID_ARG);
+    eatom_kernel_destroy(k);
+}
