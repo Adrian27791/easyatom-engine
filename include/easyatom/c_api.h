@@ -43,6 +43,24 @@ typedef enum eatom_status {
     EATOM_ERR_INTERNAL        = -5
 } eatom_status_t;
 
+/// Gama de dispositivo recomendada para fijar la dimensión D del codebook HDC.
+/// Estos valores son la única fuente de verdad del contrato dim<->tier que
+/// consume la capa TS (`recommendDim()` en `useEasyAtom`).
+///
+///   LOW   = 2^14 = 16384   (~128 KB / concepto, ~10K conceptos cuasi-orto)
+///   MID   = 2^15 = 32768   (~256 KB / concepto, ~20K)
+///   HIGH  = 2^16 = 65536   (~512 KB / concepto, ~50K)
+///   ULTRA = 2^17 = 131072  (~1   MB / concepto, ~100K)
+typedef enum eatom_device_tier {
+    EATOM_TIER_LOW   = 0,
+    EATOM_TIER_MID   = 1,
+    EATOM_TIER_HIGH  = 2,
+    EATOM_TIER_ULTRA = 3
+} eatom_device_tier_t;
+
+/// Devuelve la dimensión recomendada para `tier`. Tier desconocido => 0.
+size_t eatom_recommend_dim(int tier);
+
 /// Crea un kernel con dimensión `dim` y semilla maestra `seed`.
 /// Devuelve NULL si dim==0 o por OOM.
 eatom_kernel_t* eatom_kernel_create(size_t dim, uint64_t seed);

@@ -20,6 +20,15 @@ EATEST_CASE(c_api_create_destroy_basico) {
     eatom_kernel_destroy(k);
 }
 
+EATEST_CASE(c_api_recommend_dim_tiers_exactos) {
+    EATEST_REQUIRE(eatom_recommend_dim(EATOM_TIER_LOW)   == 16384u);
+    EATEST_REQUIRE(eatom_recommend_dim(EATOM_TIER_MID)   == 32768u);
+    EATEST_REQUIRE(eatom_recommend_dim(EATOM_TIER_HIGH)  == 65536u);
+    EATEST_REQUIRE(eatom_recommend_dim(EATOM_TIER_ULTRA) == 131072u);
+    EATEST_REQUIRE(eatom_recommend_dim(-1) == 0u);
+    EATEST_REQUIRE(eatom_recommend_dim(99) == 0u);
+}
+
 EATEST_CASE(c_api_create_dim_cero_devuelve_null) {
     auto* k = eatom_kernel_create(0, 1);
     EATEST_REQUIRE(k == nullptr);

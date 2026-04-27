@@ -36,6 +36,16 @@ struct eatom_kernel {
 
 extern "C" {
 
+size_t eatom_recommend_dim(int tier) {
+    switch (tier) {
+        case EATOM_TIER_LOW:   return static_cast<size_t>(1) << 14;  //  16384
+        case EATOM_TIER_MID:   return static_cast<size_t>(1) << 15;  //  32768
+        case EATOM_TIER_HIGH:  return static_cast<size_t>(1) << 16;  //  65536
+        case EATOM_TIER_ULTRA: return static_cast<size_t>(1) << 17;  // 131072
+        default:               return 0;
+    }
+}
+
 eatom_kernel_t* eatom_kernel_create(size_t dim, uint64_t seed) {
     if (dim == 0) return nullptr;
     try {
