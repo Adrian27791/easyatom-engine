@@ -16,7 +16,8 @@ $flags = @(
 $sources = @(
     'tests/test_main.cpp',
     'tests/test_clifford.cpp',
-    'tests/test_hilbert.cpp'
+    'tests/test_hilbert.cpp',
+    'tests/test_ops.cpp'
 )
 $out = 'test_easyatom.exe'
 
