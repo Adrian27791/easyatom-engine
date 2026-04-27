@@ -34,6 +34,7 @@ $sources = @(
     'tests/test_persistent.cpp',
     'tests/test_compile.cpp',
     'tests/test_theorems.cpp',
+    'tests/test_denoise.cpp',
     'src/c_api.cpp'
 )
 $out = 'test_easyatom.exe'
