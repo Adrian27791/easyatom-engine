@@ -38,11 +38,11 @@ easyatom-engine/
 | 1 | Espacio de Hilbert simulado `H_D` + estados normalizados | ✅ |
 | 2 | Operadores fundamentales geométricos (bind/bundle/permute/unbind) | ✅ |
 | 3 | Métrica: Fisher-Rao + α-conexiones de Amari | ✅ |
-| 4 | Topología: homología persistente (Ripser/GUDHI) | 🔜 |
-| 5 | Dinámica: operador de Koopman (lift) | 🔜 |
-| 6 | Compilación de leyes (symbolic regression) | 🔜 |
-| 7 | API pública del Q-Kernel: `ingest / compose / collapse` | 🔜 |
-| 8 | Bindings: JNI (Android), pybind11 (investigación) | 🔜 |
+| 4 | Topología: homología persistente (Vietoris-Rips, H_0/b_1, bottleneck) | ✅ |
+| 5 | Dinámica: operador de Koopman (EDMD) | ✅ |
+| 6 | Compilación de leyes (SINDy / STLSQ) | ✅ |
+| 7 | API pública del Q-Kernel: `ingest / compose / collapse` | ✅ |
+| 8 | Bindings: C ABI (`include/easyatom/c_api.h`) + JNI Android | ✅ |
 
 ## Reglas de construcción
 

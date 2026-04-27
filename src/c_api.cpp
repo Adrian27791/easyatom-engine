@@ -1,0 +1,179 @@
+// =============================================================================
+// EasyAtom · Ladrillo 8 — Implementación del C ABI sobre QKernel.
+// =============================================================================
+//
+// Este archivo es la ÚNICA unidad de traducción no header-only del motor.
+// Razón: el C ABI necesita símbolos exportables. Todo lo demás sigue siendo
+// header-only.
+//
+// Reglas:
+//   * Toda excepción C++ se atrapa y se traduce a un eatom_status_t.
+//   * No hay logging/IO desde la biblioteca: el caller decide qué hacer
+//     con los códigos de error.
+
+#include "easyatom/c_api.h"
+#include "easyatom/qkernel/qkernel.hpp"
+
+#include <exception>
+#include <string>
+#include <utility>
+#include <vector>
+
+using easyatom::qkernel::QKernel;
+using easyatom::hilbert::State;
+
+struct eatom_kernel {
+    QKernel impl;
+    eatom_kernel(std::size_t dim, std::uint64_t seed) : impl(dim, seed) {}
+};
+
+extern "C" {
+
+eatom_kernel_t* eatom_kernel_create(size_t dim, uint64_t seed) {
+    if (dim == 0) return nullptr;
+    try {
+        return new eatom_kernel(dim, seed);
+    } catch (...) {
+        return nullptr;
+    }
+}
+
+void eatom_kernel_destroy(eatom_kernel_t* k) {
+    delete k;
+}
+
+size_t eatom_kernel_dim(const eatom_kernel_t* k) {
+    if (!k) return 0;
+    return k->impl.dim();
+}
+
+size_t eatom_kernel_codebook_size(const eatom_kernel_t* k) {
+    if (!k) return 0;
+    return k->impl.codebook_size();
+}
+
+int eatom_kernel_ingest(eatom_kernel_t* k, const char* name) {
+    if (!k || !name) return EATOM_ERR_NULL;
+    try {
+        (void)k->impl.ingest(std::string(name));
+        return EATOM_OK;
+    } catch (const std::invalid_argument&) {
+        return EATOM_ERR_INVALID_ARG;
+    } catch (...) {
+        return EATOM_ERR_INTERNAL;
+    }
+}
+
+namespace {
+
+// Helper: ingiere y devuelve el State, lanzando si autoingest=0 y no existe.
+const State& fetch_state(QKernel& k, const char* name, bool autoingest) {
+    std::string s(name);
+    if (!autoingest && !k.contains(s)) {
+        throw std::invalid_argument("nombre no presente: " + s);
+    }
+    return k.ingest(s);
+}
+
+// Construye composite + query_state + lista de candidatos.
+// Lanza std::invalid_argument en caso de input inválido.
+std::pair<State, std::vector<std::string>> build_query(
+    QKernel& k,
+    const char* const* roles,        size_t n_pairs,
+    const char* const* fillers,
+    const char* query_role,
+    const char* const* candidates,   size_t n_candidates,
+    bool autoingest)
+{
+    if (n_pairs == 0) {
+        throw std::invalid_argument("n_pairs = 0");
+    }
+    if (n_candidates == 0) {
+        throw std::invalid_argument("n_candidates = 0");
+    }
+    if (!roles || !fillers || !query_role || !candidates) {
+        throw std::invalid_argument("null pointer en arrays");
+    }
+    std::vector<std::pair<State, State>> pairs;
+    pairs.reserve(n_pairs);
+    for (size_t i = 0; i < n_pairs; ++i) {
+        if (!roles[i] || !fillers[i]) {
+            throw std::invalid_argument("role o filler nulo");
+        }
+        const State& r = fetch_state(k, roles[i], autoingest);
+        const State& f = fetch_state(k, fillers[i], autoingest);
+        pairs.emplace_back(r, f);
+    }
+    State composite = k.bundle_pairs(pairs);
+    const State& qrole = fetch_state(k, query_role, autoingest);
+    State guess = k.query(composite, qrole);
+
+    std::vector<std::string> cand_names;
+    cand_names.reserve(n_candidates);
+    for (size_t i = 0; i < n_candidates; ++i) {
+        if (!candidates[i]) throw std::invalid_argument("candidato nulo");
+        // Asegura que están en la codebook.
+        (void)fetch_state(k, candidates[i], autoingest);
+        cand_names.emplace_back(candidates[i]);
+    }
+    return {std::move(guess), std::move(cand_names)};
+}
+
+}  // namespace
+
+int eatom_kernel_query_pairs_argmax(
+    eatom_kernel_t* k,
+    const char* const* roles, size_t n_pairs,
+    const char* const* fillers,
+    const char* query_role,
+    const char* const* candidates, size_t n_candidates,
+    int autoingest,
+    size_t* out_winner_index)
+{
+    if (!k || !out_winner_index) return EATOM_ERR_NULL;
+    try {
+        auto [guess, cand_names] = build_query(
+            k->impl, roles, n_pairs, fillers, query_role,
+            candidates, n_candidates, autoingest != 0);
+        std::string winner = k->impl.argmax_collapse(guess, cand_names);
+        for (size_t i = 0; i < n_candidates; ++i) {
+            if (cand_names[i] == winner) {
+                *out_winner_index = i;
+                return EATOM_OK;
+            }
+        }
+        return EATOM_ERR_INTERNAL;  // no debería pasar
+    } catch (const std::invalid_argument&) {
+        return EATOM_ERR_INVALID_ARG;
+    } catch (...) {
+        return EATOM_ERR_INTERNAL;
+    }
+}
+
+int eatom_kernel_query_pairs_probs(
+    eatom_kernel_t* k,
+    const char* const* roles, size_t n_pairs,
+    const char* const* fillers,
+    const char* query_role,
+    const char* const* candidates, size_t n_candidates,
+    int autoingest,
+    double* out_probs)
+{
+    if (!k || !out_probs) return EATOM_ERR_NULL;
+    try {
+        auto [guess, cand_names] = build_query(
+            k->impl, roles, n_pairs, fillers, query_role,
+            candidates, n_candidates, autoingest != 0);
+        auto d = k->impl.collapse(guess, cand_names);
+        for (size_t i = 0; i < n_candidates; ++i) {
+            out_probs[i] = d[i];
+        }
+        return EATOM_OK;
+    } catch (const std::invalid_argument&) {
+        return EATOM_ERR_INVALID_ARG;
+    } catch (...) {
+        return EATOM_ERR_INTERNAL;
+    }
+}
+
+}  // extern "C"
