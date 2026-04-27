@@ -10,6 +10,8 @@ add_executable(test_easyatom
     test_qkernel.cpp
     test_c_api.cpp
     test_introspect.cpp
+    test_decide.cpp
+    test_explain.cpp
     ../src/c_api.cpp
 )
 target_link_libraries(test_easyatom PRIVATE easyatom_core)

@@ -90,6 +90,54 @@ int eatom_kernel_query_pairs_probs(
     int autoingest,
     double* out_probs);
 
+// ---------------------------------------------------------------------------
+// Ladrillos 10 + 11: decide + decoder semántico.
+// ---------------------------------------------------------------------------
+
+typedef enum eatom_decision_kind {
+    EATOM_DECISION_ACCEPT     = 0,
+    EATOM_DECISION_AMBIGUOUS  = 1,
+    EATOM_DECISION_ABSTAIN    = 2,
+    EATOM_DECISION_DEGENERATE = 3,
+    EATOM_DECISION_INVALID    = 4
+} eatom_decision_kind_t;
+
+/// Política de decisión. Pasa NULL para usar la por defecto (balanced).
+typedef struct eatom_policy {
+    double min_confidence;
+    double min_margin;
+    double max_entropy_ratio;
+    double max_effective_n;     // 0 = desactivado
+    int    require_finite_probs;
+} eatom_policy_t;
+
+/// Resultado del decisor + decoder.
+///
+/// `out_explanation` es un buffer UTF-8 que el caller proporciona. Si no
+/// cabe la frase completa se trunca con '\0' final y se devuelve el tamaño
+/// que se necesitaba en `out_explanation_needed` (si != NULL).
+int eatom_kernel_decide_pairs(
+    eatom_kernel_t* k,
+    const char* const* roles,        size_t n_pairs,
+    const char* const* fillers,
+    const char* query_role,
+    const char* const* candidates,   size_t n_candidates,
+    int autoingest,
+    const eatom_policy_t* policy,        // NULL → default
+    /* salidas: */
+    int*    out_kind,                    // eatom_decision_kind_t
+    size_t* out_winner_index,
+    size_t* out_runner_up_index,
+    double* out_confidence,
+    double* out_margin,
+    double* out_entropy,
+    double* out_entropy_ratio,
+    double* out_effective_n,
+    double* out_probs,                   // n_candidates doubles, opcional (NULL ok)
+    char*   out_explanation,             // buffer del caller
+    size_t  out_explanation_capacity,
+    size_t* out_explanation_needed);     // opcional
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

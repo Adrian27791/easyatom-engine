@@ -25,6 +25,9 @@ $sources = @(
     'tests/test_qkernel.cpp',
     'tests/test_c_api.cpp',
     'tests/test_introspect.cpp',
+    'tests/test_decide.cpp',
+    'tests/test_explain.cpp',
+    'tests/test_qstate.cpp',
     'src/c_api.cpp'
 )
 $out = 'test_easyatom.exe'

@@ -153,6 +153,114 @@ Java_com_easyhelpcare_easyatom_EasyAtomNative_nativeQueryProbs(
     return out;
 }
 
+// ---------------------------------------------------------------------------
+// nativeDecide: decisor + decoder semántico (Ladrillos 10 + 11).
+//
+// Devuelve un Object[] con:
+//   [0] Integer       kind (0=accept,1=ambiguous,2=abstain,3=degenerate,4=invalid)
+//   [1] Integer       winnerIndex
+//   [2] Integer       runnerUpIndex
+//   [3] Double        confidence
+//   [4] Double        margin
+//   [5] Double        entropy
+//   [6] Double        entropyRatio
+//   [7] Double        effectiveN
+//   [8] double[]      probs
+//   [9] String        explanation (es-ES)
+// O null en error.
+// ---------------------------------------------------------------------------
+
+JNIEXPORT jobjectArray JNICALL
+Java_com_easyhelpcare_easyatom_EasyAtomNative_nativeDecide(
+    JNIEnv* env, jclass, jlong handle,
+    jobjectArray roles, jobjectArray fillers, jstring queryRole,
+    jobjectArray candidates, jboolean autoingest,
+    jdouble minConfidence, jdouble minMargin, jdouble maxEntropyRatio,
+    jdouble maxEffectiveN, jboolean requireFiniteProbs)
+{
+    if (handle == 0) return nullptr;
+    JStringArray r(env, roles), f(env, fillers), c(env, candidates);
+    JStringUTF qr(env, queryRole);
+    if (r.size() != f.size()) return nullptr;
+    if (c.size() == 0) return nullptr;
+
+    eatom_policy_t pol;
+    pol.min_confidence       = minConfidence;
+    pol.min_margin           = minMargin;
+    pol.max_entropy_ratio    = maxEntropyRatio;
+    pol.max_effective_n      = maxEffectiveN;
+    pol.require_finite_probs = requireFiniteProbs ? 1 : 0;
+
+    int kind = 4;
+    size_t winner = 0, runner = 0;
+    double conf = 0, marg = 0, ent = 0, ratio = 0, neff = 0;
+    std::vector<double> probs(c.size(), 0.0);
+
+    // Pre-tanteo del tamaño de la frase.
+    size_t needed = 0;
+    int rc = eatom_kernel_decide_pairs(
+        reinterpret_cast<eatom_kernel_t*>(handle),
+        r.data(), r.size(), f.data(),
+        qr.c_str(),
+        c.data(), c.size(),
+        autoingest ? 1 : 0,
+        &pol,
+        &kind, &winner, &runner, &conf, &marg, &ent, &ratio, &neff,
+        probs.data(), nullptr, 0, &needed);
+    if (rc != EATOM_OK) return nullptr;
+
+    std::vector<char> textbuf(needed > 0 ? needed : 1, 0);
+    rc = eatom_kernel_decide_pairs(
+        reinterpret_cast<eatom_kernel_t*>(handle),
+        r.data(), r.size(), f.data(),
+        qr.c_str(),
+        c.data(), c.size(),
+        autoingest ? 1 : 0,
+        &pol,
+        &kind, &winner, &runner, &conf, &marg, &ent, &ratio, &neff,
+        probs.data(), textbuf.data(), textbuf.size(), nullptr);
+    if (rc != EATOM_OK) return nullptr;
+
+    jclass cObject  = env->FindClass("java/lang/Object");
+    jclass cInt     = env->FindClass("java/lang/Integer");
+    jclass cDouble  = env->FindClass("java/lang/Double");
+    jmethodID ctorI = env->GetMethodID(cInt,    "<init>", "(I)V");
+    jmethodID ctorD = env->GetMethodID(cDouble, "<init>", "(D)V");
+
+    jobjectArray out = env->NewObjectArray(10, cObject, nullptr);
+    auto setI = [&](int idx, int v) {
+        jobject o = env->NewObject(cInt, ctorI, static_cast<jint>(v));
+        env->SetObjectArrayElement(out, idx, o);
+        env->DeleteLocalRef(o);
+    };
+    auto setD = [&](int idx, double v) {
+        jobject o = env->NewObject(cDouble, ctorD, static_cast<jdouble>(v));
+        env->SetObjectArrayElement(out, idx, o);
+        env->DeleteLocalRef(o);
+    };
+    setI(0, kind);
+    setI(1, static_cast<int>(winner));
+    setI(2, static_cast<int>(runner));
+    setD(3, conf);
+    setD(4, marg);
+    setD(5, ent);
+    setD(6, ratio);
+    setD(7, neff);
+    {
+        jdoubleArray pa = env->NewDoubleArray(static_cast<jsize>(probs.size()));
+        env->SetDoubleArrayRegion(pa, 0, static_cast<jsize>(probs.size()),
+                                  probs.data());
+        env->SetObjectArrayElement(out, 8, pa);
+        env->DeleteLocalRef(pa);
+    }
+    {
+        jstring js = env->NewStringUTF(textbuf.data());
+        env->SetObjectArrayElement(out, 9, js);
+        env->DeleteLocalRef(js);
+    }
+    return out;
+}
+
 }  // extern "C"
 
 #endif  // EASYATOM_BUILD_JNI

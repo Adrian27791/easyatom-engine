@@ -116,3 +116,73 @@ EATEST_CASE(c_api_handle_null_devuelve_error) {
         nullptr, x, 1, x, "a", x, 1, 1, p);
     EATEST_REQUIRE(rc == EATOM_ERR_NULL);
 }
+
+EATEST_CASE(c_api_decide_pairs_acepta_y_explica) {
+    auto* k = eatom_kernel_create(1024, 99);
+    const char* roles[]   = {"color", "tamano"};
+    const char* fillers[] = {"rojo",  "grande"};
+    const char* cands[]   = {"rojo", "azul", "verde", "grande"};
+    int    kind = -1;
+    size_t winner = 0, runner = 0;
+    double conf = 0, marg = 0, ent = 0, ratio = 0, neff = 0;
+    double probs[4] = {0,0,0,0};
+    char   text[512] = {0};
+    size_t needed = 0;
+    int rc = eatom_kernel_decide_pairs(
+        k, roles, 2, fillers, "color", cands, 4, /*autoingest*/1,
+        /*policy*/nullptr,
+        &kind, &winner, &runner, &conf, &marg, &ent, &ratio, &neff,
+        probs, text, sizeof(text), &needed);
+    EATEST_REQUIRE(rc == EATOM_OK);
+    EATEST_REQUIRE(kind == EATOM_DECISION_ACCEPT);
+    EATEST_REQUIRE(winner == 0);          // 'rojo' es el primero
+    EATEST_REQUIRE(conf > 0.30);
+    EATEST_REQUIRE(marg > 0.0);
+    EATEST_REQUIRE(needed > 1);
+    // La frase contiene el ganador.
+    std::string s(text);
+    EATEST_REQUIRE(s.find("'rojo'") != std::string::npos);
+    eatom_kernel_destroy(k);
+}
+
+EATEST_CASE(c_api_decide_pairs_buffer_pequeno_trunca_pero_no_falla) {
+    auto* k = eatom_kernel_create(512, 1);
+    const char* roles[]   = {"a"};
+    const char* fillers[] = {"x"};
+    const char* cands[]   = {"x", "y"};
+    char text[8] = {1,1,1,1,1,1,1,1};
+    size_t needed = 0;
+    int rc = eatom_kernel_decide_pairs(
+        k, roles, 1, fillers, "a", cands, 2, 1, nullptr,
+        nullptr, nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr, nullptr,
+        text, sizeof(text), &needed);
+    EATEST_REQUIRE(rc == EATOM_OK);
+    EATEST_REQUIRE(text[7] == '\0');     // siempre terminado
+    EATEST_REQUIRE(needed > sizeof(text));
+    eatom_kernel_destroy(k);
+}
+
+EATEST_CASE(c_api_decide_pairs_policy_strict_puede_abstener) {
+    auto* k = eatom_kernel_create(64, 5);
+    const char* roles[]   = {"r"};
+    const char* fillers[] = {"f"};
+    // Consultamos por un rol DISTINTO al ingerido → ruido puro.
+    const char* cands[]   = {"f","g","h","i","j","k","l","m"};
+    eatom_policy_t pol;
+    pol.min_confidence       = 0.50;
+    pol.min_margin           = 0.30;
+    pol.max_entropy_ratio    = 0.50;
+    pol.max_effective_n      = 0.0;
+    pol.require_finite_probs = 1;
+    int kind = -1;
+    int rc = eatom_kernel_decide_pairs(
+        k, roles, 1, fillers, /*query_role*/"otro_rol", cands, 8, 1, &pol,
+        &kind, nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, 0, nullptr);
+    EATEST_REQUIRE(rc == EATOM_OK);
+    // Consultar por un rol no compuesto → distribución dispersa.
+    EATEST_REQUIRE(kind != EATOM_DECISION_ACCEPT);
+    eatom_kernel_destroy(k);
+}

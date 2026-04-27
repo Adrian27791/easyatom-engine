@@ -44,6 +44,9 @@ easyatom-engine/
 | 7 | API pública del Q-Kernel: `ingest / compose / collapse` | ✅ |
 | 8 | Bindings: C ABI (`include/easyatom/c_api.h`) + JNI Android | ✅ |
 | 9 | Introspección: `TracedKernel` (trayectoria, fidelidad/fisher por paso, JSON auditable) | ✅ |
+| 10 | Decisor geométrico (`decide`) con validación multi-criterio | ✅ |
+| 11 | Decoder semántico (es-ES) — respuestas en idioma humano | ✅ |
+| C | Qubits sintéticos reales: amplitudes complejas + unitarios + Born + entrelazamiento | ✅ |
 
 ## Reglas de construcción
 

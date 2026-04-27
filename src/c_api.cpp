@@ -13,7 +13,10 @@
 
 #include "easyatom/c_api.h"
 #include "easyatom/qkernel/qkernel.hpp"
+#include "easyatom/decide/decisor.hpp"
+#include "easyatom/explain/decoder.hpp"
 
+#include <cstring>
 #include <exception>
 #include <string>
 #include <utility>
@@ -21,6 +24,10 @@
 
 using easyatom::qkernel::QKernel;
 using easyatom::hilbert::State;
+using easyatom::infogeo::Distribution;
+using easyatom::decide::Decision;
+using easyatom::decide::DecisionKind;
+using easyatom::decide::DecisionPolicy;
 
 struct eatom_kernel {
     QKernel impl;
@@ -168,6 +175,94 @@ int eatom_kernel_query_pairs_probs(
         for (size_t i = 0; i < n_candidates; ++i) {
             out_probs[i] = d[i];
         }
+        return EATOM_OK;
+    } catch (const std::invalid_argument&) {
+        return EATOM_ERR_INVALID_ARG;
+    } catch (...) {
+        return EATOM_ERR_INTERNAL;
+    }
+}
+
+namespace {
+
+inline int decision_kind_to_c(DecisionKind k) noexcept {
+    switch (k) {
+        case DecisionKind::Accept:     return EATOM_DECISION_ACCEPT;
+        case DecisionKind::Ambiguous:  return EATOM_DECISION_AMBIGUOUS;
+        case DecisionKind::Abstain:    return EATOM_DECISION_ABSTAIN;
+        case DecisionKind::Degenerate: return EATOM_DECISION_DEGENERATE;
+        case DecisionKind::Invalid:    return EATOM_DECISION_INVALID;
+    }
+    return EATOM_DECISION_INVALID;
+}
+
+inline DecisionPolicy policy_from_c(const eatom_policy_t* p) {
+    if (!p) return {};
+    DecisionPolicy out;
+    out.min_confidence       = p->min_confidence;
+    out.min_margin           = p->min_margin;
+    out.max_entropy_ratio    = p->max_entropy_ratio;
+    out.max_effective_n      = p->max_effective_n;
+    out.require_finite_probs = (p->require_finite_probs != 0);
+    return out;
+}
+
+inline void copy_string_safe(const std::string& s, char* buf, size_t cap,
+                             size_t* needed)
+{
+    if (needed) *needed = s.size() + 1;
+    if (!buf || cap == 0) return;
+    const size_t to_copy = (s.size() + 1 <= cap) ? s.size() : (cap - 1);
+    std::memcpy(buf, s.data(), to_copy);
+    buf[to_copy] = '\0';
+}
+
+}  // namespace
+
+int eatom_kernel_decide_pairs(
+    eatom_kernel_t* k,
+    const char* const* roles, size_t n_pairs,
+    const char* const* fillers,
+    const char* query_role,
+    const char* const* candidates, size_t n_candidates,
+    int autoingest,
+    const eatom_policy_t* policy,
+    int*    out_kind,
+    size_t* out_winner_index,
+    size_t* out_runner_up_index,
+    double* out_confidence,
+    double* out_margin,
+    double* out_entropy,
+    double* out_entropy_ratio,
+    double* out_effective_n,
+    double* out_probs,
+    char*   out_explanation,
+    size_t  out_explanation_capacity,
+    size_t* out_explanation_needed)
+{
+    if (!k) return EATOM_ERR_NULL;
+    try {
+        auto [guess, cand_names] = build_query(
+            k->impl, roles, n_pairs, fillers, query_role,
+            candidates, n_candidates, autoingest != 0);
+        Distribution dist = k->impl.collapse(guess, cand_names);
+        Decision dec = easyatom::decide::decide(
+            dist, cand_names, policy_from_c(policy));
+
+        if (out_kind)            *out_kind            = decision_kind_to_c(dec.kind);
+        if (out_winner_index)    *out_winner_index    = dec.winner_index;
+        if (out_runner_up_index) *out_runner_up_index = dec.runner_up_index;
+        if (out_confidence)      *out_confidence      = dec.confidence;
+        if (out_margin)          *out_margin          = dec.margin;
+        if (out_entropy)         *out_entropy         = dec.entropy;
+        if (out_entropy_ratio)   *out_entropy_ratio   = dec.entropy_ratio;
+        if (out_effective_n)     *out_effective_n     = dec.effective_n;
+        if (out_probs) {
+            for (size_t i = 0; i < n_candidates; ++i) out_probs[i] = dist[i];
+        }
+        std::string text = easyatom::explain::decode_full(dec, dist, cand_names, 3);
+        copy_string_safe(text, out_explanation, out_explanation_capacity,
+                         out_explanation_needed);
         return EATOM_OK;
     } catch (const std::invalid_argument&) {
         return EATOM_ERR_INVALID_ARG;
