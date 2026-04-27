@@ -43,6 +43,7 @@ easyatom-engine/
 | 6 | Compilación de leyes (SINDy / STLSQ) | ✅ |
 | 7 | API pública del Q-Kernel: `ingest / compose / collapse` | ✅ |
 | 8 | Bindings: C ABI (`include/easyatom/c_api.h`) + JNI Android | ✅ |
+| 9 | Introspección: `TracedKernel` (trayectoria, fidelidad/fisher por paso, JSON auditable) | ✅ |
 
 ## Reglas de construcción
 
