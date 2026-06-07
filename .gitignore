@@ -1,13 +1,41 @@
 build/
+build_h1/
 *.o
 *.obj
 *.exe
 *.pdb
 *.ilk
+*.a
+*.so
+*.dll
 .cache/
 compile_commands.json
+__pycache__/
+*.pyc
+*.db
+*.db-journal
 
+# Large binary / log output files
 build_err.txt
 build_out.txt
+build_errors.log
+h1_build.log
+err.txt
+out.txt
+out_*.txt
+out_*.json
+llm_*.txt
+transE_*.txt
+pipeline_*.log
+test_seed_motor.o
+bench_yc.exe
+bench_yc_arm64
 test_easyatom.exe
 
+# Temp files
+tmp_*.tsv
+tmp_*.json
+
+# Embeddings (large)
+embeddings/
+embeddings_full/

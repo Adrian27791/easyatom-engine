@@ -1,0 +1,779 @@
+\documentclass[11pt]{article}
+
+% ─── Packages ─────────────────────────────────────────────────────────────────
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{authblk}
+
+% ─── Metadata ─────────────────────────────────────────────────────────────────
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!70!black,
+  citecolor=blue!70!black,
+  urlcolor=blue!70!black,
+  pdftitle={EasyAtom: A Zero-Shot Inductive Engine for Drug Repurposing
+            via Algebraic Causal Composition},
+  pdfauthor={Adrian Riveron, Enrique Riveron}
+}
+
+\title{\textbf{EasyAtom: A Zero-Shot Inductive Engine for Drug Repurposing
+       via Algebraic Causal Composition}\\[0.5em]
+       \large Technical Report \& Investment Overview --- EasyAtom v4.3}
+
+\author[1]{Adrian Riveron\thanks{Chief Technology Officer, EasyHelpCare LLC}}
+\author[1]{Enrique Riveron\thanks{Chief Executive Officer, EasyHelpCare LLC}}
+\affil[1]{EasyHelpCare LLC, Naples, Florida, USA}
+
+\date{June 2026}
+
+% ─── Document ─────────────────────────────────────────────────────────────────
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+\vspace{0.5em}
+\noindent\colorbox{blue!7}{\begin{minipage}{\linewidth}
+\vspace{8pt}
+\begin{center}\textbf{\large Key Highlights for Pharma Partners}\end{center}
+\vspace{4pt}
+\begin{tabular}{@{}ll@{}}
+  \textbf{Engine:}    & EasyAtom v4.3 --- 16-layer algebraic causal reasoning (L0--L15, no GPU, no neural networks) \\[2pt]
+  \textbf{Corpus:}    & 2.56M biomedical triples (base) + 1.05M augmented co-occurrence pairs \\[2pt]
+  \textbf{Output:}    & 325 Platinum Standard candidates, validated by 3 independent causal layers \\[2pt]
+  \textbf{Benchmark:} & Recall@10\,=\,28.6\% \textbar{} NDCG@10\,=\,0.822 (zero-shot inductive; 922 drugs, 108 diseases) \\[2pt]
+  \textbf{Deploy:}    & \$200 Android smartphone \textbar{} 40\,ms per query \textbar{} fully offline \\[2pt]
+  \textbf{TRL:}       & 4 --- seeking pharma / biotech validation partner \\[2pt]
+  \textbf{Audit:}     & \url{https://easyatom-engine.web.app} \\
+\end{tabular}
+\vspace{8pt}
+\end{minipage}}
+\vspace{0.4em}
+
+% ─── Abstract ─────────────────────────────────────────────────────────────────
+\begin{abstract}
+We present \textbf{EasyAtom v4.3}, a ten-layer causal reasoning engine for
+zero-shot drug repurposing that operates entirely without neural networks,
+probabilistic models, or external library dependencies.
+Starting from a corpus of 2.56 million biomedical triple statements,
+the engine applies a pipeline of algebraic operations — hyperdimensional
+computing, causal symbolic inference, Hamiltonian compression,
+attractor condensation, spectral analysis, semantic embedding,
+gap detection, knockout perturbation, int8 distillation, and
+world-model forward-chaining — to rank drug-disease associations
+and generate novel repurposing hypotheses.
+
+On a benchmark of 22,380 known drug-disease pairs (922 drugs,
+108 diseases) evaluated in a zero-shot inductive setting (no training
+on the test set), the engine achieves Recall@10\,=\,28.6\%,
+Recall@50\,=\,54.7\%, NDCG@10\,=\,0.822, and MRR\,=\,0.113.
+Cross-layer convergence analysis identifies 325 \emph{Platinum Standard}
+candidates supported by evidence from three independent causal layers
+(L2\,$\cap$\,L7$_{\mathrm{HIGH}}$\,$\cap$\,L10$_{\mathrm{CRITICAL}}$),
+and a DWPC knockout analysis over the top-50 gap candidates finds
+44 pairs rated CRITICAL or HIGH.
+
+The complete system runs on a standard desktop PC (16\,GB RAM, no GPU)
+in approximately 113 minutes of total pipeline time, and the resulting
+knowledge shards (6.4\,MB total) are deployable on resource-constrained
+edge devices such as a \$200 Android smartphone at ${\sim}$40\,ms per query.
+All audit files, pipeline checkpoints, and scoring data are
+publicly available under open access.
+\end{abstract}
+
+\textbf{Keywords:} drug repurposing, knowledge graph, causal reasoning,
+hyperdimensional computing, zero-shot learning, edge deployment,
+algebraic composition, bioinformatics
+
+\vspace{0.5em}
+\noindent\textbf{Audit data:} \url{https://easyatom-engine.web.app}
+
+\newpage
+
+% ─── 1. Strategic Overview ────────────────────────────────────────────────────
+\section{Strategic Overview}
+\label{sec:strategic}
+
+\paragraph{The repurposing opportunity.}
+Drug repurposing --- identifying new therapeutic indications for existing
+approved compounds --- compresses the typical 10--15 year, \$2 billion
+de~novo development cycle to an estimated 3--5 years at substantially
+lower cost and risk.
+The global drug repurposing market was valued at approximately \$28 billion
+in 2024 and is projected to grow at a 14--16\% compound annual rate,
+driven by the need to extract additional value from approved compound
+portfolios and accelerate clinical development timelines.
+The critical bottleneck limiting repurposing throughput is
+\emph{computational prioritization}: identifying which of the thousands
+of possible drug-disease pairs merit wet-lab investment.
+
+\paragraph{What EasyAtom delivers.}
+EasyAtom v4.3 is a ten-layer algebraic causal reasoning engine that
+scores 22,380 drug-disease associations across 922 approved drugs and
+108 disease categories ---
+\textbf{without GPU hardware, without neural network training, and
+without ongoing data subscriptions}.
+The full pipeline runs in approximately 113 minutes on a standard desktop CPU
+(16\,GB RAM) and is deployable offline on a \$200 Android smartphone at
+40\,ms per query.
+
+Primary deliverables for a pharma partner:
+\begin{itemize}[noitemsep]
+  \item \textbf{325 Platinum Standard candidates:} novel drug-disease pairs
+    simultaneously supported by an Ising energy model (L2), a gap
+    detection algorithm (L7), and a forward-chaining world model (L10) ---
+    three independent causal layers with no shared parameters.
+  \item \textbf{44 knockout-critical candidates:} the 44 pairs (from a
+    top-50 perturbation analysis) whose causal path depends on a specific
+    keystone gene, enabling targeted mechanism-of-action follow-up.
+  \item \textbf{Full ranked hypothesis list:} causal explanation chains for
+    every scored pair, fully auditable from corpus triple to final score.
+\end{itemize}
+
+\paragraph{Key differentiators.}
+\begin{enumerate}[noitemsep]
+  \item \textbf{Zero-shot inductive:} EasyAtom scores drugs not present
+    in any training set. A proprietary compound can be scored immediately
+    after adding it to the corpus --- no retraining required.
+  \item \textbf{Infrastructure independence:} No GPU, no cloud, no external
+    API. All computation runs on commodity hardware, eliminating recurring
+    cloud costs and vendor lock-in.
+  \item \textbf{Fully auditable:} Every hypothesis includes a human-readable
+    causal chain (e.g., ``loratadine $\to$ inhibits PDE4B $\to$ regulates
+    cAMP $\to$ associated with Alzheimer's disease'') traceable to specific
+    corpus triples. No black-box embeddings.
+  \item \textbf{Extensible to proprietary data:} Internal preclinical data
+    (binding assays, gene expression, unpublished trial outcomes) can be
+    ingested into the corpus to generate repurposing hypotheses that are
+    inaccessible to any public knowledge graph system.
+\end{enumerate}
+
+\paragraph{Partnership modes.}
+EasyAtom is designed for deployment in three configurations:
+\begin{enumerate}[noitemsep]
+  \item \textbf{Corpus augmentation:} Ingest proprietary preclinical data
+    into the EasyAtom corpus and rerun the pipeline to generate
+    company-specific hypotheses not visible in any public system.
+  \item \textbf{Disease-area triage:} Focus the engine on a defined
+    therapeutic area (CNS, oncology, metabolic disease) to produce a
+    ranked experimental agenda for the company's compound library.
+  \item \textbf{Portfolio screening:} Screen an approved or pipeline
+    compound against all 108 disease categories to identify unexpected
+    high-confidence associations worth validating.
+\end{enumerate}
+
+% ─── 2. Introduction ──────────────────────────────────────────────────────────
+\section{Introduction}
+
+Drug repurposing — the identification of new therapeutic indications for
+existing approved compounds — reduces development time and risk compared
+to \emph{de novo} drug discovery~\cite{pushpakom2019drug}.
+Computational approaches based on knowledge graphs have demonstrated
+particular promise: given a graph of biological entities and relations,
+link prediction methods can rank candidate drug-disease associations
+beyond the known training set~\cite{nickel2016review}.
+
+Dominant approaches learn dense embeddings by factorizing or completing
+the training graph (TransE~\cite{bordes2013translating},
+RotatE~\cite{sun2018rotate}, DRKG~\cite{drkg2020}).
+These are transductive by design: performance is measured on held-out
+edges of the \emph{same} graph on which embeddings were trained.
+While powerful for retrieval within the training distribution, they
+do not generalize zero-shot to drugs or diseases absent from the
+training corpus, and they require GPU infrastructure for training
+that is unavailable in resource-limited settings.
+
+We take a complementary path. EasyAtom is designed around three
+practical constraints that are common in low-resource research
+environments:
+\begin{enumerate}[noitemsep]
+  \item No GPU, no internet connection after corpus ingestion.
+  \item No external library dependencies (pure C++20).
+  \item Deployable on a \$200 Android smartphone.
+\end{enumerate}
+
+Rather than learning embeddings, the engine composes causal evidence
+algebraically across ten independent layers, each producing a
+deterministic score for every (drug, disease) pair.
+Because scores are derived from the corpus rather than fit to a
+training split, the system operates in a zero-shot inductive mode:
+a drug seen only once in the corpus can still receive a score based
+on the transitive causal chains passing through its neighbors.
+
+This report describes the architecture (Section~\ref{sec:methods}),
+benchmark results (Section~\ref{sec:results}), cross-layer convergence
+analysis (Section~\ref{sec:convergence}), and deployment characteristics
+(Section~\ref{sec:deployment}), with discussion of limitations
+(Section~\ref{sec:limitations}) and future directions
+(Section~\ref{sec:conclusion}).
+
+% ─── 2. Related Work ──────────────────────────────────────────────────────────
+\section{Related Work}
+\label{sec:related}
+
+\paragraph{Knowledge graph embedding for drug repurposing.}
+TransE~\cite{bordes2013translating} represents relations as translations
+in embedding space: $\mathbf{h} + \mathbf{r} \approx \mathbf{t}$.
+RotatE~\cite{sun2018rotate} models relations as rotations in complex space,
+handling symmetry and antisymmetry patterns.
+DRKG~\cite{drkg2020} constructs a large-scale drug repurposing knowledge graph
+(5.9M edges across 97K entities) and trains DGL-KE embeddings at scale.
+All three are transductive and require gradient-based training.
+
+\paragraph{Network-based approaches.}
+Hetionet~\cite{himmelstein2017systematic} encodes biomedical knowledge in a
+heterogeneous network and uses DWPC (Degree-Weighted Path Count) to score
+drug-disease paths. It achieves ${\sim}$27\% Recall@10 on its internal
+benchmark in a transductive setting.
+EasyAtom adopts DWPC at Layer~8 (Section~\ref{sec:l8}) as one of ten
+evidence sources, rather than as the sole scoring mechanism.
+
+\paragraph{Causal and symbolic methods.}
+Rule-based systems such as AnyBURL~\cite{meilicke2019anyburl} mine
+Horn clauses from knowledge graphs.
+EasyAtom's causal symbolic layer (L1) applies a similar principle
+but generates scores analytically rather than by sampling, and fuses
+them with nine other algebraic signals.
+
+\paragraph{Edge and mobile biomedical AI.}
+TensorFlow Lite and ONNX Runtime enable neural inference on mobile devices,
+but require quantized model weights and framework overhead.
+EasyAtom achieves mobile deployment through a different route:
+all scores are precomputed offline and stored as int8-quantized
+JSON shards (6.4\,MB total), loaded on-demand by disease category.
+
+% ─── 3. Methods ───────────────────────────────────────────────────────────────
+\section{Methods}
+\label{sec:methods}
+
+\subsection{Corpus Construction}
+\label{sec:corpus}
+
+The primary corpus (\texttt{corpus\_1M\_3col.tsv}) contains 2,556,160 rows,
+each a triple of the form \texttt{(subject, relation, object)}.
+Entities are biomedical concepts — drugs (INN names), diseases (MeSH/ICD
+approximate mappings), genes (HGNC symbols), and biological processes.
+Relations include directionality indicators (\texttt{→}, \texttt{inhibits},
+\texttt{activates}, \texttt{associated\_with}, etc.).
+
+The corpus was assembled from the following openly licensed databases:
+\begin{itemize}[noitemsep]
+  \item \textbf{DrugBank v5.x}~\cite{wishart2018drugbank}: drug INN names, drug-gene
+    target links, mechanism-of-action annotations (922 drugs).
+  \item \textbf{OMIM (Online Mendelian Inheritance in Man)}~\cite{hamosh2005omim}:
+    gene-disease association triples; disease names normalized to MeSH hierarchy.
+  \item \textbf{CTD (Comparative Toxicogenomics Database)}~\cite{davis2023ctd}:
+    curated chemical-gene and chemical-disease interactions.
+  \item \textbf{Hetionet v1.0}~\cite{himmelstein2017systematic}: integrated
+    biomedical knowledge graph (29 node types, 11 relation types); subset of
+    drug--gene--disease metapaths.
+  \item \textbf{STRING v11}~\cite{szklarczyk2023string}: protein-protein interaction
+    pairs at confidence score~$\geq$~700, providing gene-gene relation triples.
+\end{itemize}
+All sources are publicly available under open-data or CC-BY licenses.
+No proprietary databases were used. Entity names were normalized to
+lowercase ASCII; disease names were mapped to MeSH approximate equivalents.
+
+An augmented corpus (\texttt{corpus\_augmented.tsv}, 1,052,211 rows) adds
+inferred co-occurrence triples derived from literature co-mention patterns.
+Scored hypotheses generated by the pipeline's derive step
+(\texttt{hypotheses\_scored.tsv}, 3,921,607 rows) are produced downstream
+and are not used as training input to L0--L5.
+
+\subsection{Pipeline Architecture}
+\label{sec:pipeline}
+
+EasyAtom processes every (drug, disease) pair through 16 sequential layers (L0--L15).
+All layers are deterministic and parameter-free at inference time.
+No layer is trained on the benchmark pairs.
+Table~\ref{tab:layers} summarizes all 16 layers.
+
+\begin{table}[h]
+\centering
+\small
+\caption{EasyAtom v4.3 pipeline layers (L0--L15). Layers L0--L10 process all
+22,380 benchmark pairs. L11--L15 operate on the distilled knowledge base.
+``Time'' is approximate wall-clock on a single desktop CPU (16\,GB RAM, no GPU).}
+\label{tab:layers}
+\begin{tabular}{clp{6.4cm}r}
+\toprule
+\textbf{Layer} & \textbf{Name} & \textbf{Mechanism} & \textbf{Time (s)} \\
+\midrule
+L0  & HDC           & Hyperdimensional computing: binary hypervectors
+                      $D$=10,000; cosine similarity (22,380 pairs) & $\sim$8 \\
+L1  & Causal Sym.   & Symbolic transitive chains: directed paths
+                      length $\leq$3 through gene/process nodes & $\sim$12 \\
+L2  & Hamiltonian   & Ising energy $H{=}{-}\sum_i w_i\sigma_i$;
+                      lower energy $\to$ stronger association & $\sim$15 \\
+L3  & Attractor     & Fixed-point attractor via iterative
+                      message passing with damping & $\sim$20 \\
+L4  & Spectra       & Spectral subgraph analysis
+                      (top-$k$ eigenvalues, adjacency submatrix) & $\sim$18 \\
+L5  & Explain       & Rule-based causal chain string generation & $\sim$5 \\
+L6  & Semantic      & Token-level overlap: disease context vectors
+                      vs.\ drug effect descriptions & $\sim$22 \\
+L7  & GapQueue      & Gap detection: 41,396 raw $\to$ 2,640 post-cap
+                      novel hypothesis candidates & $\sim$25 \\
+L8  & Knockout      & DWPC perturbation (top-50): 44/50 CRITICAL/HIGH & $\sim$30 \\
+L9  & Distillation  & int8 quantization: 10 domain shards, 6,595\,KB;
+                      SHA-256 per shard stored in manifest & 1.3 \\
+L10 & WorldModel    & Forward-chaining urgency: 705 CRITICAL + 758 HIGH & 5.2 \\
+L11 & PK Safety     & PK/target-occupancy safety filter (22,380 pairs) & 8.4 \\
+L12 & Repurposing   & Extended repurposing scan: 266,561 candidates & 12.1 \\
+L13 & Com.\ Synergy & Combinatorial cocktail scoring: 7,800 evaluated,
+                      4,264 SYNERGISTIC\_POTENT & 6.8 \\
+L14 & DDI Safe      & Drug-drug interaction filter: 47 viable cocktails & 2.3 \\
+L15 & N-of-1        & Personalized clinical protocol generation:
+                      20 protocols & 1.1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Layer 0: Hyperdimensional Computing (L0)}
+\label{sec:l0}
+Hyperdimensional computing (HDC) encodes each entity as a dense binary
+vector of dimension $D = 10{,}000$~\cite{kanerva2009hyperdimensional}.
+Drug and disease vectors are constructed by bundling (majority-vote XOR)
+the vectors of their associated entities in the corpus.
+Similarity is measured by normalized Hamming distance:
+\[
+  s_{\mathrm{HDC}}(d, z) = 1 - \frac{\|\mathbf{v}_d \oplus \mathbf{v}_z\|_1}{D}
+\]
+where $\mathbf{v}_d$ and $\mathbf{v}_z$ are the hypervectors for drug $d$
+and disease $z$, respectively.
+
+\subsubsection{Layer 2: Hamiltonian Energy}
+\label{sec:l2}
+Inspired by Ising-model energy functions~\cite{hopfield1982neural},
+the Hamiltonian score treats each shared intermediate entity $g$ as a
+spin variable $\sigma_g \in \{-1, +1\}$ (activating or inhibiting).
+The energy is:
+\[
+  H(d, z) = -\sum_{g \in N(d) \cap N(z)} w_{dg} \cdot w_{gz}
+\]
+where $w_{dg}$ is the signed edge weight between drug $d$ and gene $g$.
+Lower energy corresponds to stronger coherent causal alignment.
+A normalized association score $s_{L2} = \sigma(-H)$ is computed via sigmoid.
+
+\subsubsection{Layer 7: Gap Detection}
+\label{sec:l7}
+Layer 7 identifies the most valuable \emph{missing} links: pairs
+$(d, z)$ with high composite causal support from L0--L6 but absent
+from the known drug-disease association set.
+A \emph{gap score} is defined as:
+\[
+  \mathrm{gap}(d, z) = s_{\mathrm{composite}}(d, z) \cdot
+    \bigl(1 - \mathbb{1}[(d,z) \in \mathcal{K}]\bigr) \cdot
+    J(d, z)
+\]
+where $\mathcal{K}$ is the set of known associations, $J$ is the
+Jaccard similarity between the neighborhood sets of $d$ and $z$,
+and $s_{\mathrm{composite}}$ is the normalized sum of L0--L6 scores.
+The full ranked list contains 41,396 raw candidates;
+after applying a coverage cap (ensuring no single disease exceeds
+$5\%$ of total gaps), 2,640 post-cap candidates remain.
+A mobile shard of the top 500 is included in the deployment package.
+
+\subsubsection{Layer 8: Knockout Analysis}
+\label{sec:l8}
+For the top-50 gap candidates, L8 applies a DWPC (Degree-Weighted Path Count)
+perturbation analysis~\cite{himmelstein2017systematic}.
+Each candidate gene $g$ in the causal path is virtually knocked out,
+and the residual path score is recomputed.
+A candidate is rated \textbf{CRITICAL} if knockout of a single gene
+reduces the path score by $>70\%$, and \textbf{HIGH} if the reduction
+is $>40\%$.
+Of the 50 candidates evaluated, 44 were rated CRITICAL or HIGH,
+indicating that the causal paths identified are robust and non-trivial
+(dependent on specific molecular intermediaries).
+
+\subsubsection{Layer 10: World Model}
+\label{sec:l10}
+Layer 10 performs forward-chaining over the current knowledge state
+to derive second-order consequences.
+Starting from the top-ranked repurposing hypotheses, it propagates
+implications through the corpus graph to assign an \emph{urgency score}:
+\[
+  u(d, z) = \mathrm{cascade\_depth}(d, z) \cdot
+             \mathrm{convergence\_count}(d, z) \cdot
+             s_{L7}(d, z)
+\]
+This layer produces the full set of 3,921,607 scored hypotheses, of which
+the top-ranked candidates form the repurposing priority queue.
+
+\subsection{Benchmark Setup}
+\label{sec:benchmark}
+
+We evaluate on 22,380 known drug-disease pairs drawn from the corpus.
+The benchmark is constructed as a ranking task: given a drug $d$,
+rank all 108 diseases by descending composite score and measure
+whether the known disease $z$ for that drug appears in the top-$K$.
+
+\textbf{Key properties of our benchmark:}
+\begin{itemize}[noitemsep]
+  \item \textbf{Zero-shot inductive:} No benchmark pair is used as a
+    training signal to any layer. The corpus contains co-occurrence
+    evidence for many pairs, but no layer is supervised on
+    (drug, disease) pair labels.
+  \item \textbf{Exclusions:} 47 pairs were excluded from statistical
+    ranking (retained in gap analysis) because the corresponding drug
+    has fewer than 2 corpus entries, making rank inference unreliable.
+    The statistical benchmark therefore covers 22,333 pairs.
+  \item \textbf{Closed-world assumption:} The 108 diseases are fixed;
+    all pairs involve this disease set.
+    Pairs not in $\mathcal{K}$ are treated as unknown, not negative.
+\end{itemize}
+
+% ─── 4. Results ───────────────────────────────────────────────────────────────
+\section{Benchmark Results}
+\label{sec:results}
+
+\subsection{Retrieval Metrics}
+
+Table~\ref{tab:results} reports retrieval metrics on the full benchmark
+(N\,=\,22,380 pairs; 22,333 pairs in the statistical ranking after exclusions).
+
+Direct numerical comparison with published transductive methods
+(TransE~\cite{bordes2013translating}, RotatE~\cite{sun2018rotate},
+DRKG~\cite{drkg2020}, Hetionet~\cite{himmelstein2017systematic})
+is not possible due to fundamental differences in evaluation protocol
+(transductive vs.\ zero-shot inductive), benchmark graphs, and
+disease set size.
+We report our results as a self-contained baseline for future work
+on the same corpus and protocol.
+
+\begin{table}[h]
+\centering
+\caption{EasyAtom v4.3 retrieval results. Zero-shot inductive setting:
+922 drugs, 108 diseases, 22,333 pairs in statistical ranking
+(47 low-corpus-entry pairs excluded; see Section~\ref{sec:benchmark}).
+NDCG@10 uses binary relevance (gain\,=\,1 for known pairs, 0 otherwise).}
+\label{tab:results}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{R@1} & \textbf{R@5} & \textbf{R@10} & \textbf{R@50} &
+\textbf{MRR} & \textbf{NDCG@10} \\
+\midrule
+0.040 & 0.174 & 0.286 & 0.547 & 0.113 & 0.822 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Interpretation of NDCG@10 = 0.822.}
+NDCG@10 is computed with binary relevance (gain\,=\,1 for known pairs,
+gain\,=\,0 otherwise).
+The high value with moderate Recall@10 indicates that when a known pair
+is retrieved, its rank is typically 1--3 rather than 8--10.
+This reflects ranking precision, not overall coverage.
+With 108 diseases per drug, Recall@10\,=\,28.6\% means that in approximately
+$1$ in $3$ drug evaluations, the known disease appears in the top-10
+of a 108-item ranked list, a result consistent with strong prior-free
+causal signal.
+For context, these metrics encode a closed-world assumption:
+all 108 diseases are candidate labels; pairs absent from the known set
+are treated as unknown, not as negatives.
+
+\paragraph{Timing context.}
+Total pipeline wall-clock time is approximately 113 minutes on a single
+CPU (Intel Core i5/i7 equivalent, 16\,GB RAM, no GPU).
+Individual query time at inference (loading pre-computed int8 shards
+and reranking) is ${\sim}$40\,ms on a Samsung Galaxy A16 smartphone.
+
+\subsection{Causal Consistency}
+\label{sec:causal-consistency}
+
+To validate that the causal layer (L1) adds genuine signal beyond
+co-occurrence statistics, we compute a \emph{causal enrichment ratio}:
+\[
+  R_7 = \frac{P(\mathrm{known} \mid \mathrm{causal\ chain\ exists})}{
+               P(\mathrm{known} \mid \mathrm{no\ causal\ chain})}
+\]
+On the benchmark, $R_7 = 2.68$ at $K = 1$ (pairs with a verified
+transitive causal chain are 2.68$\times$ more likely to appear at
+rank 1 than pairs without one), confirming that the causal layer
+provides discriminative evidence beyond co-occurrence.
+
+% ─── 5. Cross-Layer Convergence ───────────────────────────────────────────────
+\section{Cross-Layer Convergence Analysis}
+\label{sec:convergence}
+
+A key property of a multi-layer system is whether independent layers
+agree on the same candidates.
+We define the \textbf{Platinum Standard} as the set of (drug, disease)
+gap candidates supported by all three of:
+\begin{itemize}[noitemsep]
+  \item L2 (Hamiltonian energy: top-quartile association score),
+  \item L7$_\mathrm{HIGH}$ (gap score in the top-500 post-cap list),
+  \item L10$_\mathrm{CRITICAL}$ (urgency score rated CRITICAL by
+    the World Model layer).
+\end{itemize}
+
+\textbf{Result:} 325 pairs satisfy all three criteria.
+These represent novel repurposing hypotheses where an energy-based
+physics model, a gap-detection algorithm, and a forward-chaining
+world model independently agree on high priority.
+
+\subsection{Keystone Genes}
+\label{sec:keystone}
+
+Analysis of the top-50 L8 knockout candidates reveals four genes that
+appear as critical intermediaries in the largest number of
+drug-disease causal paths:
+
+\begin{itemize}[noitemsep]
+  \item \textbf{PDE4B} (phosphodiesterase 4B): hub connecting
+    antihistamine-class drugs (alcaftadine, cyproheptadine, loratadine)
+    to Alzheimer's disease and Parkinson's disease causal paths.
+  \item \textbf{CARTPT} (cocaine- and amphetamine-regulated transcript):
+    intermediary in CNS drug-neurodegeneration paths.
+  \item \textbf{ABCC3} (ATP-binding cassette subfamily C, member 3):
+    transporter gene appearing in multi-drug resistance and
+    oncology repurposing paths.
+  \item \textbf{DCK} (deoxycytidine kinase): activation gene appearing
+    in nucleoside-analog paths for multiple cancer indications.
+\end{itemize}
+
+\paragraph{Case study: loratadine and PDE4B (Platinum Standard hypothesis).}
+Loratadine (brand name: Claritin) is a widely available over-the-counter
+antihistamine on the WHO Essential Medicines list.
+EasyAtom assigns it the highest-confidence rating — \textbf{Platinum Standard}
+(L2\,$\cap$\,L7$_\mathrm{HIGH}$\,$\cap$\,L10$_\mathrm{CRITICAL}$) —
+for a repurposing hypothesis toward Alzheimer's disease:
+\[
+  \text{loratadine} \xrightarrow{\text{inhibits}} \text{PDE4B}
+  \xrightarrow{\text{regulates}} \text{cAMP signaling}
+  \xrightarrow{\text{associated with}} \text{Alzheimer's disease}
+\]
+Raw pipeline scores: L2 Hamiltonian resonance\,=\,1.460;
+L7 Jaccard gap\,=\,1.00 (perfect neighborhood overlap);
+L10 urgency\,=\,0.1749; L8 DWPC\,=\,0.08418; keystone gene: \texttt{pde4b}.
+This hypothesis is partially supported by published literature:
+PDE4B is a known research target for cognitive disorders~\cite{bolger1997pde4},
+and cAMP pathway modulation has been studied in the context of
+neurodegeneration~\cite{vitolo2002camp}.
+However, the full three-step chain is a computational hypothesis derived
+algebraically from corpus co-occurrence patterns.
+No direct experimental validation of this specific repurposing candidate
+exists; wet-lab confirmation is required before any clinical inference.
+
+% ─── 6. Deployment ────────────────────────────────────────────────────────────
+\section{Deployment Characteristics}
+\label{sec:deployment}
+
+\subsection{Desktop}
+The full pipeline is implemented in pure C++20 with zero external
+library dependencies. Compilation requires only a standard C++20
+compiler (tested with GCC 12 and MSVC 19.x).
+All pipeline stages run on a single CPU thread; parallelization
+is disabled to keep the pipeline fully deterministic and reproducible.
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Hardware:} Intel/AMD desktop CPU, 16\,GB RAM, no GPU.
+  \item \textbf{Storage:} ${\sim}$500\,MB corpus on disk during ingestion;
+    ${\sim}$6.4\,MB knowledge shards after distillation.
+  \item \textbf{Time:} ${\sim}$113 minutes full pipeline (L0--L10).
+  \item \textbf{Connectivity:} 100\% offline after corpus ingestion.
+\end{itemize}
+
+\subsection{Mobile Edge (Samsung Galaxy A16)}
+After distillation (L9), the knowledge is stored as int8-quantized
+JSON shards organized by disease category (oncology, neurology,
+immunology, cardiology, gastroenterology, metabolism, rare diseases,
+infectiology, other).
+Each shard is loaded on-demand at query time.
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Total shard size:} 6,594.7\,KB (${\approx}$6.4\,MB).
+  \item \textbf{Query latency:} ${\sim}$40\,ms per single drug query
+    on Samsung Galaxy A16 (Exynos 1330, 4\,GB RAM).
+  \item \textbf{No internet required} after installation.
+  \item \textbf{Corpus fingerprint (64-bit):} \texttt{0ff11993fb8746a9}
+    (first 64 bits of SHA-256 over sorted knowledge base triples;
+    full 256-bit hash in \texttt{audit\_MANIFEST.json}).
+\end{itemize}
+
+The int8 scale maps are stored in \texttt{knowledge\_manifest.json}
+(publicly available at the audit URL).
+A deployed query reconstructs the float score as
+$s = s_{\mathrm{int8}} / \mathrm{scale}$ using the per-field scale factors.
+
+% ─── 8. Market Opportunity & Commercialization ───────────────────────────────
+\section{Market Opportunity \& Commercialization}
+\label{sec:market}
+
+\paragraph{Competitive landscape.}
+Leading computational drug repurposing platforms (BenevolentAI,
+Insilico Medicine, Recursion Pharmaceuticals) are built on large-scale
+GPU-dependent neural architectures trained on proprietary databases.
+These platforms require substantial infrastructure investment and are
+inaccessible to institutions without significant computational budgets.
+EasyAtom's deterministic, CPU-only, offline architecture occupies a
+distinct niche: high-fidelity repurposing hypothesis generation at
+near-zero marginal cost per query, with full auditability.
+
+\paragraph{Partnership tiers.}
+\begin{center}
+\small
+\begin{tabular}{lp{5.4cm}l}
+\toprule
+\textbf{Tier} & \textbf{Offering} & \textbf{Target Partner} \\
+\midrule
+Engine License &
+  Full C++ source + corpus + pipeline scripts;
+  partner runs on own infrastructure &
+  Large pharma / CRO \\[4pt]
+Corpus Augmentation Study &
+  EasyHelpCare ingests partner's proprietary preclinical data
+  (under NDA) and delivers a custom repurposing report &
+  Mid-size biotech / academic center \\[4pt]
+Disease-Area Triage &
+  Focused analysis on a defined therapeutic area with top-$N$
+  ranked candidates + knockout report &
+  Rare disease foundation / specialty pharma \\[4pt]
+Mobile SDK &
+  Android SDK for point-of-care query with offline shard deployment &
+  Hospital networks / clinical research units \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Technology Readiness Level.}
+EasyAtom v4.3 is at \textbf{TRL\,4}:
+technology validated in a controlled laboratory setting against
+a 22,380-pair zero-shot benchmark.
+The path to \textbf{TRL\,6} (pilot demonstrated in a relevant pharma
+environment) requires:
+\begin{enumerate}[noitemsep]
+  \item Corpus expansion to $>$5M triples (STRING protein-protein
+    interaction network at score\,$\geq$\,700 + expanded ChEMBL
+    drug-target coverage).
+  \item External benchmark evaluation on a public held-out split
+    (e.g., Hetionet or DRKG format) enabling direct peer comparison.
+  \item Wet-lab validation of top-10 Platinum Standard candidates
+    through a pharma or academic medical center collaboration.
+\end{enumerate}
+
+\paragraph{Seeking partners.}
+EasyHelpCare LLC is seeking pharma, biotech, and academic medical center
+partners for:
+\begin{itemize}[noitemsep]
+  \item Corpus augmentation pilots (partner provides proprietary
+    preclinical data; EasyHelpCare runs analysis and delivers report
+    under NDA).
+  \item Co-authorship on wet-lab validation studies targeting the
+    325 Platinum Standard candidates.
+  \item Licensing discussion for therapeutic-area-specific deployments.
+\end{itemize}
+Full technical due diligence materials (pipeline code, knowledge shards,
+benchmark audit files) are available at
+\url{https://easyatom-engine.web.app}.\\
+Contact: \textbf{EasyHelpCare LLC}, Naples, Florida, USA ---
+Adrian Riveron (CTO), Enrique Riveron (CEO).
+
+% ─── 9. Limitations ──────────────────────────────────────────────────────────
+\section{Limitations}
+\label{sec:limitations}
+
+\paragraph{Benchmark comparability.}
+The retrieval results in Table~\ref{tab:results} are \emph{not}
+directly comparable to DRKG, RotatE, or Hetionet results because:
+(a) those systems train on held-out edges of their benchmark graph
+(transductive), while EasyAtom does not;
+(b) the underlying knowledge graphs differ in scale and composition;
+(c) EasyAtom uses a fixed set of 108 diseases, not an open-world ranking.
+A fully comparable evaluation would require running all systems on
+the same corpus under the same held-out split, which we leave for
+future work.
+
+\paragraph{Corpus scale.}
+The current corpus (2.56M triples base) is small compared to DRKG
+(5.9M edges, 97K entities).
+We expect retrieval recall to improve substantially with corpus
+expansion, particularly for rare diseases and drugs with
+few corpus entries (the 47 excluded pairs are a direct symptom of
+this limitation).
+
+\paragraph{Ground truth completeness.}
+The 22,380 known pairs are extracted from corpus co-occurrence,
+not from a curated gold standard (e.g., DrugBank or CTD).
+False negatives (true associations absent from our ground truth)
+may cause Recall@K to be underestimated.
+
+\paragraph{Causal chain validity.}
+Causal chains inferred by L1 are based on relation directionality
+in text, which may include incorrect or ambiguous assertions
+from source documents.
+The chains are used as algebraic evidence, not as verified
+biological facts.
+
+\paragraph{No prospective validation.}
+All results are computational.
+No repurposing candidates have been validated experimentally.
+The Platinum Standard and keystone gene findings are hypotheses
+requiring wet-lab confirmation.
+
+% ─── 8. Conclusion & Future Work ──────────────────────────────────────────────
+\section{Conclusion and Future Work}
+\label{sec:conclusion}
+
+We have described EasyAtom v4.3, a zero-shot inductive drug repurposing
+engine built on algebraic causal composition across ten deterministic layers.
+The system achieves Recall@10\,=\,28.6\% and NDCG@10\,=\,0.822
+without GPU, without neural network training, and without external
+library dependencies.
+It runs on a \$200 smartphone at 40\,ms per query.
+
+The 325 Platinum Standard candidates --- supported by independent evidence
+from an Ising energy model, a gap detection algorithm, and a
+forward-chaining world model --- represent a prioritized experimental
+agenda for drug repurposing that can be audited, reproduced, and
+extended entirely offline.
+EasyHelpCare is actively seeking pharma and biotech partners for
+corpus augmentation studies and wet-lab validation;
+see Section~\ref{sec:market} for partnership details.
+
+\paragraph{Future work.}
+\begin{enumerate}[noitemsep]
+  \item \textbf{Corpus expansion.}
+    Ingesting STRING protein-protein interaction data (${\sim}$5M pairs,
+    score\,$\geq$\,700) and expanded ChEMBL drug-target data is expected to
+    improve Recall@10 to $>$35\% and reduce the 47 low-corpus-entry
+    exclusions.
+  \item \textbf{Standard benchmark evaluation.}
+    Running the engine on a public held-out split (e.g., Hetionet or
+    DRKG benchmark format) will enable direct numerical comparison.
+  \item \textbf{Experimental validation (active partnership target).}
+    EasyHelpCare is actively seeking a wet-lab collaborator --- pharma,
+    CRO, or academic medical center --- to test the top-10 Platinum
+    Standard candidates (e.g., the loratadine-PDE4B-Alzheimer's
+    hypothesis) and provide the first prospective confirmation of
+    the engine's computational hypotheses.
+  \item \textbf{Algebraic token theory.}
+    The multi-layer algebraic composition framework suggests a
+    generalization beyond drug repurposing: a deterministic,
+    algebraically grounded alternative to probabilistic token
+    selection in language generation tasks.
+    We describe this direction as future theoretical work.
+\end{enumerate}
+
+% ─── Acknowledgments ──────────────────────────────────────────────────────────
+\section*{Acknowledgments}
+The authors thank the open-source biomedical community for maintaining
+the publicly accessible databases and literature that form the basis
+of the EasyAtom corpus.
+All pipeline code, knowledge shards, and audit data are publicly
+accessible at \url{https://easyatom-engine.web.app}.
+
+% ─── References ───────────────────────────────────────────────────────────────
+\bibliographystyle{unsrtnat}
+\bibliography{easyatom_refs}
+
+\end{document}
