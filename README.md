@@ -5,7 +5,7 @@
 [![TRL 4](https://img.shields.io/badge/TRL-4-blue)](https://easyatom-engine.web.app)
 [![Layers](https://img.shields.io/badge/pipeline-L0--L15-green)](https://easyatom-engine.web.app)
 [![Audit](https://img.shields.io/badge/audit-public-brightgreen)](https://easyatom-engine.web.app/audit/)
-[![License](https://img.shields.io/badge/license-CC--BY--4.0-lightgrey)](LICENSE)
+[![License](https://img.shields.io/badge/license-BSL_1.1-orange)](LICENSE)
 
 > *"We don't store answers. We store the laws that generate them."*
 
@@ -129,7 +129,7 @@ EasyHelpCare LLC is seeking pharma and biotech partners for:
 
 ## License
 
-Source code: [MIT License](LICENSE)  
+Source code: [Business Source License 1.1](LICENSE) — free for non-commercial research and academic use; **commercial use requires a separate license** from EasyHelpCare LLC (contact via [easyatom-engine.web.app](https://easyatom-engine.web.app)). Converts to MIT on June 7, 2029.  
 Pipeline outputs and audit data: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)  
 Corpus (DrugBank-derived subset): DrugBank Academic License applies to derived data.
 
